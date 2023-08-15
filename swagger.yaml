@@ -1,0 +1,118 @@
+openapi: 3.0.0
+info:
+  title: KMA test job
+  description: Тестовое задание для KMA (version 2)
+
+servers:
+  - url: http://localhost:8011
+    description: Тестовый сервер
+
+paths:
+  /generate:
+    get:
+      summary: Генерация контента для запросов длинны контента..
+      responses:
+        '200':
+          description: Нормальный ответ сервера ...
+          content:
+            text/plain:
+              schema:
+                type: string
+  /put-to-rabbit:
+    get:
+      summary: Засунуть urlы в очередь
+      parameters:
+        - in: query
+          name: count
+          description: Количество генерируемых urlов
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Нормальный ответ сервера...
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: номер записи
+                    url:
+                      type: string
+                      description: Сгенеренный url
+                    time:
+                      type: integer
+                      description: Время отправки сообщения
+
+  /rabbit-read:
+    get:
+      summary: Получить длины контента у count urlов
+      parameters:
+        - in: query
+          name: count
+          description: Количество запрашиваемых сообщений, по умолчанию читаются все..
+          schema:
+            type: integer
+            nullable: true
+      responses:
+        '200':
+          description: Нормальный ответ сервера...
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                      description: запрошенный url
+                    ts:
+                      type: integer
+                      description: Время генерации
+                    len:
+                      type: integer
+                      description: длина контента
+
+  /get-statistic:
+    get:
+      summary: Запрос статистики по записям..
+      parameters:
+        - in: query
+          name: db
+          description: Источник данных
+          required: true
+          schema:
+            type: string
+            enum: [mysql, clickH]
+      responses:
+        '200':
+          description: Нормальный ответ сервера...
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    minute:
+                      type: integer
+                      description: Обрабатываемая минута
+                    col:
+                      type: integer
+                      description: количиество обработанных строк в эту минуту
+                    avglen:
+                      type: number
+                      description: Средняя длинна строки сообщений обработанных в текущую минуту
+                    firstmsg:
+                      type: string
+                      description: время первого сообщения в минуте
+                    lastmsg:
+                      type: string
+                      description: Время последнего сообщения в минуте
+
+
